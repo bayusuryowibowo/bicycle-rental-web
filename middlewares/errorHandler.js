@@ -18,6 +18,14 @@ function errorHandler(err, req, res, next) {
       code = 401;
       message = "Invalid login";
       break;
+    case "NoToken":
+      code = 401;
+      message = "Access token is required";
+      break;
+    case "Unauthorized":
+      code = 401;
+      message = "Unauthorized";
+      break;
     default:
       break;
   }
