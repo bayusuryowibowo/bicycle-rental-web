@@ -1,7 +1,7 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Bicycle extends Model {
+  class Rental extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -9,33 +9,38 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Bicycle.belongsTo(models.Category)
-      Bicycle.hasMany(models.Rental)
+      Rental.belongsTo(models.User)
+      Rental.belongsTo(models.Bicycle)
     }
   }
-  Bicycle.init(
+  Rental.init(
     {
-      name: {
+      status: {
         type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-        validate: {
-          notNull: true,
-          notEmpty: true,
+        defaultValue: "Active",
+      },
+      travelledDistance: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      totalPrice: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      UserId: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "Users",
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      feature: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
-      imageURL: DataTypes.STRING,
-      CategoryId: {
+      BicycleId: {
         type: DataTypes.INTEGER,
         references: {
-          model: 'Categories',
-          key: 'id'
+          model: "Bicycles",
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
@@ -43,8 +48,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Bicycle",
+      modelName: "Rental",
     }
   );
-  return Bicycle;
+  return Rental;
 };
