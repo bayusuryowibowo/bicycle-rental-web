@@ -9,6 +9,15 @@ function errorHandler(err, req, res, next) {
       code = 400;
       message = err.errors[0].message;
       break;
+    case "ValidationError":
+      code = 400;
+      message = "Please enter username and password";
+      break;
+    case "UserNotFound":
+    case "FailedLogin":
+      code = 401;
+      message = "Invalid login";
+      break;
     default:
       break;
   }
