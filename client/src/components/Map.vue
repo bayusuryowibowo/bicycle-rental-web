@@ -1,43 +1,43 @@
 <script>
 import H from '@here/maps-api-for-javascript'
+import { mapActions, mapState } from 'pinia'
+import { useBicycleStore } from '../stores/bicycleStore'
+import { useRentalStore } from '../stores/rentalStore'
 
 export default {
   data() {
     return {
       map: null,
       platform: null,
-      // bubble: null,
       ui: null,
       travelledDistance: 0,
+      duration: 0,
       allMarkers: [],
       selectedMarker: null,
       origin: null,
       destination: null,
-      isFinish: false
+      isStart: false
+    }
+  },
+  computed: {
+    ...mapState(useBicycleStore, ['bicycle']),
+    getDurationInMMSS() {
+      if (this.duration) {
+        const minutes = Math.floor(this.duration / 60)
+        const seconds = this.duration % 60
+        return `${minutes} minutes ${seconds} seconds`
+      }
+      return ''
+    }
+  },
+  watch: {
+    isStart(newValue) {
+      if (newValue === true) this.startRental(this.travelledDistance, this.bicycle.id)
     }
   },
   methods: {
+    ...mapActions(useRentalStore, ['startRental']),
     addMarkersToMap() {
-      // // -6.175163012431789, 106.82714821653543
-      // const monasMarker = new H.map.Marker({ lat: -6.175163012431789, lng: 106.82714821653543 })
-      // this.map.addObject(monasMarker)
-
-      // // -6.128784852303684, 106.83327159926687
-      // const ancolMarker = new H.map.Marker({ lat: -6.128784852303684, lng: 106.83327159926687 })
-      // this.map.addObject(ancolMarker)
-
-      // // -6.244423444006796, 106.80072952644662
-      // const blokMMarker = new H.map.Marker({ lat: -6.244423444006796, lng: 106.80072952644662 })
-      // this.map.addObject(blokMMarker)
-
-      // // -6.134530154822225, 106.81334465687262
-      // const kotuMarker = new H.map.Marker({ lat: -6.134530154822225, lng: 106.81334465687262 })
-      // this.map.addObject(kotuMarker)
-
-      // // -6.138641231582186, 106.83164583236173
-      // const manggaDuaMarker = new H.map.Marker({ lat: -6.138641231582186, lng: 106.83164583236173 })
-      // this.map.addObject(manggaDuaMarker)
-
       const markerData = [
         {
           position: { lat: -6.175163012431789, lng: 106.82714821653543 },
@@ -104,8 +104,8 @@ export default {
     },
     setUpClickListener() {
       // someCondition = true;
-      if (this.isFinish === true) {
-        map.removeEventListener('tap', clickListener);
+      if (this.isStart === true) {
+        map.removeEventListener('tap', clickListener)
       }
       const self = this
 
@@ -118,7 +118,7 @@ export default {
         // console.log('Latitude: ' + latitude)
         // console.log('Longitude: ' + longitude)
 
-        let coordinate = latitude + ',' + longitude;
+        let coordinate = latitude + ',' + longitude
 
         if (self.destination) {
           self.map.removeObject(self.destination.marker)
@@ -176,7 +176,7 @@ export default {
       this.ui = H.ui.UI.createDefault(this.map, defaultLayers)
     },
     calculateRouteFromAtoB() {
-      this.isFinish = true
+      this.isStart = true
 
       // Step 4: calculate the route from the given locations
       var router = this.platform.getRoutingService(null, 8)
@@ -288,19 +288,20 @@ export default {
       })
 
       this.travelledDistance = distance
+      this.duration = duration
 
-      var summaryDiv = document.createElement('div'),
-        content = ''
-      content += '<b>Total distance</b>: ' + distance + 'm. <br/>'
-      content += '<b>Travel Time</b>: ' + duration.toMMSS()
+      // var summaryDiv = document.createElement('div'),
+      //   content = ''
+      // content += '<b>Total distance</b>: ' + distance + 'm. <br/>'
+      // content += '<b>Travel Time</b>: ' + duration.toMMSS()
 
-      summaryDiv.style.fontSize = 'small'
-      summaryDiv.style.marginLeft = '5%'
-      summaryDiv.style.marginRight = '5%'
-      summaryDiv.innerHTML = content
-      // Find the element with ID "panel" and append the summaryDiv to it
-      var panelElement = document.getElementById('panel')
-      panelElement.appendChild(summaryDiv)
+      // summaryDiv.style.fontSize = 'small'
+      // summaryDiv.style.marginLeft = '5%'
+      // summaryDiv.style.marginRight = '5%'
+      // summaryDiv.innerHTML = content
+      // // Find the element with ID "panel" and append the summaryDiv to it
+      // var panelElement = document.getElementById('panel')
+      // panelElement.appendChild(summaryDiv)
     },
     /**
      * Creates a series of H.map.Marker points from the route and adds them to the map.
@@ -353,7 +354,7 @@ export default {
     showUBikeStations() {
       this.addMarkersToMap()
     },
-    calculate() {
+    start() {
       // Now use the map as required...
       this.calculateRouteFromAtoB()
     }
@@ -371,7 +372,13 @@ export default {
 <template>
   <div>
     <div id="mapContainer" class="map-container"></div>
-    <div id="panel"></div>
+    <div>
+      <div class="text-lg font-bold mb-2">Summary</div>
+      <div id="panel" class="text-base">
+        <b>Total distance</b>: {{ travelledDistance }} m <br />
+        <b>Travel Time</b>: {{ getDurationInMMSS() }}
+      </div>
+    </div>
   </div>
   <div>
     <button
@@ -381,10 +388,10 @@ export default {
       Show UBike Station
     </button>
     <button
-      @click="calculate"
+      @click="start"
       class="text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-BrightMint focus:outline-none focus:ring-4 focus:ring-white hover:bg-teal-500 cursor-pointer"
     >
-      Calculate
+      Start
     </button>
   </div>
 </template>
