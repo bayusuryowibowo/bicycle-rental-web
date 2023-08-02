@@ -61,7 +61,9 @@ module.exports = (sequelize, DataTypes) => {
           attributes: ["price"],
         }
       );
-      instance.totalPrice = bicycle.Category.price * instance.travelledDistance;
+      instance.totalPrice = Math.ceil(
+        bicycle.Category.price * instance.travelledDistance
+      );
     } catch (error) {
       next(error);
     }
