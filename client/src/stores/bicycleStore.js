@@ -1,5 +1,8 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { useToast } from 'vue-toast-notification'
+
+const $toast = useToast()
 
 const baseUrl = 'http://localhost:3000'
 
@@ -17,7 +20,9 @@ export const useBicycleStore = defineStore('bicycle', {
         const { data } = await axios.get(baseUrl + "/categories", {})
         this.categoryData = data
       } catch (error) {
-        console.log(error)
+        $toast.error(`${error.response.data.message}`, {
+          position: 'top-right'
+        })
       }
     },
     async fetchBicycleData() {
@@ -25,7 +30,9 @@ export const useBicycleStore = defineStore('bicycle', {
         const { data } = await axios.get(baseUrl + "/bicycles", {})
         this.bicycleData = data
       } catch (error) {
-        console.log(error)
+        $toast.error(`${error.response.data.message}`, {
+          position: 'top-right'
+        })
       }
     },
     async fetchBicycle(id) {
@@ -33,7 +40,9 @@ export const useBicycleStore = defineStore('bicycle', {
         const { data } = await axios.get(baseUrl + `/bicycles/${id}`, {})
         this.bicycle = data
       } catch (error) {
-        console.log(error)
+        $toast.error(`${error.response.data.message}`, {
+          position: 'top-right'
+        })
       }
     }
   }
