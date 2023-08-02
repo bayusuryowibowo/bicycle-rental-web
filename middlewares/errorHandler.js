@@ -30,6 +30,9 @@ function errorHandler(err, req, res, next) {
       code = 404;
       message = "Bicycle not found";
       break;
+    case "MidtransError":
+      code = 400;
+      message = err.ApiResponse.error_messages[0];
     default:
       break;
   }
