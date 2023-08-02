@@ -1,9 +1,20 @@
 <script>
+import { mapActions, mapState } from 'pinia';
 import Map from '../components/Map.vue'
+import { useBicycleStore } from '../stores/bicycleStore';
 
 export default {
+  computed: {
+    // ...mapState(useBicycleStore, ['bicycle'])
+  },
   components: {
     Map
+  },
+  methods: {
+    ...mapActions(useBicycleStore, ['fetchBicycle'])
+  },
+  created() {
+    this.fetchBicycle(this.$route.params.id)
   }
 }
 </script>

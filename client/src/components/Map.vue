@@ -9,9 +9,143 @@ export default {
       // bubble: null,
       ui: null,
       travelledDistance: 0,
+      allMarkers: [],
+      selectedMarker: null,
+      origin: null,
+      destination: null,
+      isFinish: false
     }
   },
   methods: {
+    addMarkersToMap() {
+      // // -6.175163012431789, 106.82714821653543
+      // const monasMarker = new H.map.Marker({ lat: -6.175163012431789, lng: 106.82714821653543 })
+      // this.map.addObject(monasMarker)
+
+      // // -6.128784852303684, 106.83327159926687
+      // const ancolMarker = new H.map.Marker({ lat: -6.128784852303684, lng: 106.83327159926687 })
+      // this.map.addObject(ancolMarker)
+
+      // // -6.244423444006796, 106.80072952644662
+      // const blokMMarker = new H.map.Marker({ lat: -6.244423444006796, lng: 106.80072952644662 })
+      // this.map.addObject(blokMMarker)
+
+      // // -6.134530154822225, 106.81334465687262
+      // const kotuMarker = new H.map.Marker({ lat: -6.134530154822225, lng: 106.81334465687262 })
+      // this.map.addObject(kotuMarker)
+
+      // // -6.138641231582186, 106.83164583236173
+      // const manggaDuaMarker = new H.map.Marker({ lat: -6.138641231582186, lng: 106.83164583236173 })
+      // this.map.addObject(manggaDuaMarker)
+
+      const markerData = [
+        {
+          position: { lat: -6.175163012431789, lng: 106.82714821653543 },
+          label: 'Monas'
+        },
+        {
+          position: { lat: -6.128784852303684, lng: 106.83327159926687 },
+          label: 'Ancol'
+        },
+        {
+          position: { lat: -6.244423444006796, lng: 106.80072952644662 },
+          label: 'Blok M'
+        },
+        {
+          position: { lat: -6.134530154822225, lng: 106.81334465687262 },
+          label: 'Kota Tua'
+        },
+        {
+          position: { lat: -6.138641231582186, lng: 106.83164583236173 },
+          label: 'Mangga Dua'
+        }
+      ]
+
+      markerData.forEach((data) => {
+        const marker = new H.map.Marker(data.position)
+        marker.setData(data.label)
+        this.allMarkers.push(marker)
+
+        marker.addEventListener('tap', (event) => {
+          const clickedMarker = event.target
+
+          // If the clicked marker is the same as the previously selected marker, do nothing
+          if (clickedMarker === this.selectedMarker) {
+            return
+          }
+
+          this.removeOtherMarkers()
+
+          // Save the selected marker
+          this.selectedMarker = clickedMarker
+
+          // Set the origin using the clicked marker's position
+          this.origin = clickedMarker.getGeometry().lat + ',' + clickedMarker.getGeometry().lng
+
+          // Hide other markers
+          this.allMarkers.forEach((marker) => {
+            if (marker !== clickedMarker) {
+              marker.setVisibility(false)
+            }
+          })
+
+          this.setUpClickListener()
+        })
+
+        // Add marker to the map
+        this.map.addObject(marker)
+      })
+    },
+    removeOtherMarkers() {
+      // Show all markers that were hidden
+      this.allMarkers.forEach((marker) => {
+        marker.setVisibility(true)
+      })
+    },
+    setUpClickListener() {
+      // someCondition = true;
+      if (this.isFinish === true) {
+        map.removeEventListener('tap', clickListener);
+      }
+      const self = this
+
+      function clickListener(evt) {
+        let coord = self.map.screenToGeo(evt.currentPointer.viewportX, evt.currentPointer.viewportY)
+
+        let latitude = coord.lat.toFixed(6)
+        let longitude = coord.lng.toFixed(6)
+
+        // console.log('Latitude: ' + latitude)
+        // console.log('Longitude: ' + longitude)
+
+        let coordinate = latitude + ',' + longitude;
+
+        if (self.destination) {
+          self.map.removeObject(self.destination.marker)
+        }
+
+        let existingMarker = self.allMarkers.find((marker) => marker.getData() === coordinate)
+
+        if (!existingMarker) {
+          const marker = new H.map.Marker({ lat: latitude, lng: longitude })
+          marker.setData(coordinate)
+          self.allMarkers.push(marker)
+          self.map.addObject(marker)
+
+          self.destination = {
+            coordinate: coordinate,
+            marker: marker
+          }
+        } else {
+          self.destination = {
+            coordinate: coordinate,
+            marker: existingMarker
+          }
+        }
+      }
+
+      this.map.addEventListener('tap', clickListener)
+    },
     initializeMap() {
       // Step 1: initialize communication with the platform
       this.platform = new H.service.Platform({
@@ -25,7 +159,7 @@ export default {
         defaultLayers.vector.normal.map,
         {
           center: { lat: -6.1754, lng: 106.8272 }, // Jakarta, Indonesia
-          zoom: 13,
+          zoom: 12,
           pixelRatio: window.devicePixelRatio || 1
         }
       )
@@ -40,37 +174,21 @@ export default {
 
       // Create the default UI components
       this.ui = H.ui.UI.createDefault(this.map, defaultLayers)
-
-      // Now use the map as required...
-      this.calculateRouteFromAtoB()
     },
     calculateRouteFromAtoB() {
+      this.isFinish = true
+
       // Step 4: calculate the route from the given locations
       var router = this.platform.getRoutingService(null, 8)
       var routeRequestParams = {
         routingMode: 'fast',
         transportMode: 'bicycle',
-        origin: '-6.1754,106.8272', // Jakarta
-        destination: '-6.1744,106.8205', // Monumen Nasional (Monas) di Jakarta
+        origin: this.origin,
+        destination: this.destination.coordinate,
         return: 'polyline,turnByTurnActions,actions,instructions,travelSummary'
       }
 
       router.calculateRoute(routeRequestParams, this.onSuccess, this.onError)
-    },
-    /**
-     * Opens/Closes a infobubble
-     * @param  {H.geo.Point} position     The location on the map.
-     * @param  {String} text              The contents of the infobubble.
-     */
-    openBubble(position, text) {
-      if (!this.bubble) {
-        this.bubble = new H.ui.InfoBubble(position, { content: text })
-        this.ui.addBubble(this.bubble)
-      } else {
-        this.bubble.setPosition(position)
-        this.bubble.setContent(text)
-        this.bubble.open()
-      }
     },
     /**
      * Creates a H.map.Polyline from the shape of the route and adds it to the map.
@@ -81,19 +199,38 @@ export default {
         // decode LineString from the flexible polyline
         let linestring = H.geo.LineString.fromFlexiblePolyline(section.polyline)
 
-        // Create a polyline to display the route:
-        let polyline = new H.map.Polyline(linestring, {
+        // Create an outline for the route polyline
+        var routeOutline = new H.map.Polyline(linestring, {
           style: {
-            lineWidth: 4,
-            strokeColor: 'rgba(0, 128, 255, 0.7)'
+            lineWidth: 10,
+            strokeColor: 'rgba(0, 128, 255, 0.7)',
+            lineTailCap: 'arrow-tail',
+            lineHeadCap: 'arrow-head'
           }
         })
 
-        // Add the polyline to the map
-        this.map.addObject(polyline)
+        // Create a patterned polyline
+        var routeArrows = new H.map.Polyline(linestring, {
+          style: {
+            lineWidth: 10,
+            fillColor: 'white',
+            strokeColor: 'rgba(255, 255, 255, 1)',
+            lineDash: [0, 2],
+            lineTailCap: 'arrow-tail',
+            lineHeadCap: 'arrow-head'
+          }
+        })
+
+        // Create a group that represents the route line and contains outline and the pattern
+        var routeLine = new H.map.Group()
+        routeLine.addObjects([routeOutline, routeArrows])
+
+        // Add the routeLine group to the map
+        this.map.addObject(routeLine)
+
         // And zoom to its bounding rectangle
         this.map.getViewModel().setLookAtData({
-          bounds: polyline.getBoundingBox()
+          bounds: routeLine.getBoundingBox()
         })
       })
     },
@@ -129,15 +266,6 @@ export default {
           marker.instruction = action.instruction
           group.addObject(marker)
         }
-
-        // group.addEventListener(
-        //   'tap',
-        //   (evt) => {
-        //     this.map.setCenter(evt.target.getGeometry())
-        //     this.openBubble(evt.target.getGeometry(), evt.target.instruction)
-        //   },
-        //   false
-        // )
 
         // Add the maneuvers group to the map
         this.map.addObject(group)
@@ -214,20 +342,28 @@ export default {
        * in the functions below:
        */
       this.addRouteShapeToMap(route)
-      this.addManueversToMap(route)
-      this.addManueversToPanel(route)
+      // this.addManueversToMap(route)
+      // this.addManueversToPanel(route)
       this.addSummaryToPanel(route)
     },
 
     onError(error) {
       console.log(error, '<<< error')
+    },
+    showUBikeStations() {
+      this.addMarkersToMap()
+    },
+    calculate() {
+      // Now use the map as required...
+      this.calculateRouteFromAtoB()
     }
   },
   mounted() {
-    window.addEventListener('load', this.initializeMap)
+    this.initializeMap()
+    // window.addEventListener('load', this.initializeMap)
   },
   beforeUnmount() {
-    window.removeEventListener('load', this.initializeMap)
+    // window.removeEventListener('load', this.initializeMap)
   }
 }
 </script>
@@ -236,6 +372,20 @@ export default {
   <div>
     <div id="mapContainer" class="map-container"></div>
     <div id="panel"></div>
+  </div>
+  <div>
+    <button
+      @click="showUBikeStations"
+      class="text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-BrightMint focus:outline-none focus:ring-4 focus:ring-white hover:bg-teal-500 cursor-pointer"
+    >
+      Show UBike Station
+    </button>
+    <button
+      @click="calculate"
+      class="text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-BrightMint focus:outline-none focus:ring-4 focus:ring-white hover:bg-teal-500 cursor-pointer"
+    >
+      Calculate
+    </button>
   </div>
 </template>
 

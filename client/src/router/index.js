@@ -11,7 +11,7 @@ const router = createRouter({
       component: HomePage
     },
     {
-      path: '/map',
+      path: '/map/:id',
       name: 'map',
       component: MapPage
     }
