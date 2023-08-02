@@ -11,7 +11,7 @@ router.get("/bicycles", Controller.readBicycles);
 router.get("/bicycles/:id", Controller.readBicycleById);
 router.use(auth);
 router.post("/rentals", Controller.startRental);
-router.patch("/rentals", Controller.finishRental);
+router.patch("/rentals/:id", Controller.finishRental);
 router.post("/generate-midtrans-token", Controller.createSnapTransaction)
 
 module.exports = router;

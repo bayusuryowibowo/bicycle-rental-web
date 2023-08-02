@@ -1,5 +1,6 @@
 const { generateAccessToken } = require("../helpers/jwt");
 const { User, Rental, Bicycle, Category } = require("../models");
+const midtransClient = require("midtrans-client");
 
 class Controller {
   static async register(req, res, next) {
