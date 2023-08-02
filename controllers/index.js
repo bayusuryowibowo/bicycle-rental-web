@@ -64,11 +64,11 @@ class Controller {
 
   static async readBicycleById(req, res, next) {
     try {
-      const { id } = req.params.id;
+      const id = req.params.id;
       const bicycle = await Bicycle.findByPk(id, {
         include: Category,
       });
-      if (!data) throw { name: "BicycleNotFound" };
+      if (!bicycle) throw { name: "BicycleNotFound" };
       res.status(200).json(bicycle);
     } catch (error) {
       next(error);
