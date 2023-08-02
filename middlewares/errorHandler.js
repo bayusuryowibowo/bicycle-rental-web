@@ -26,6 +26,10 @@ function errorHandler(err, req, res, next) {
       code = 401;
       message = "Unauthorized";
       break;
+    case "BicycleNotFound":
+      code = 404;
+      message = "Bicycle not found";
+      break;
     default:
       break;
   }
