@@ -384,8 +384,8 @@ export default {
       <div class="text-lg font-bold mb-2">Summary</div>
       <div v-if="isStart" id="panel" class="text-base">
         <b>Total distance</b>: {{ travelledDistance }} m <br />
-        <b>Travel Time</b>: {{ getDurationInMMSS() }} <br />
-        <b>Estimate Price:</b> {{ totalPrice() }}
+        <!-- <b>Travel Time</b>: {{ getDurationInMMSS() }} <br /> -->
+        <b>Estimate Price:</b> Rp {{ Math.ceil(travelledDistance * bicycle.Category.price) }}
       </div>
     </div>
   </div>
@@ -404,7 +404,7 @@ export default {
     </button>
     <button
       @click="finish"
-      class="text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-BrightMint focus:outline-none focus:ring-4 focus:ring-white hover:bg-teal-500 cursor-pointer"
+      class="text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-teal-500 hover:text-teal-600 focus:outline-none focus:ring-4 focus:ring-white cursor-pointer"
     >
       Finish
     </button>
