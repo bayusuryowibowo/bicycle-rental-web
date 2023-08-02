@@ -79,12 +79,14 @@ class Controller {
     try {
       const UserId = req.user.id;
       const { travelledDistance, BicycleId } = req.body;
-      await Rental.create({
+      const rental = await Rental.create({
         UserId,
         travelledDistance,
         BicycleId,
       });
-      res.status(201).json({ message: "Your rental is being recorded" });
+      res
+        .status(201)
+        .json({ message: "Your rental is being recorded", rental });
     } catch (error) {
       next(error);
     }
@@ -94,11 +96,12 @@ class Controller {
     try {
       const id = req.params.id;
       const username = req.user.username;
-      const { travelledDistance } = req.body;
+      const { travelledDistance, totalPrice } = req.body;
       await Rental.update(
         {
           status: "Completed",
           travelledDistance,
+          totalPrice,
         },
         {
           where: {
@@ -109,6 +112,39 @@ class Controller {
       res
         .status(200)
         .json({ message: `Thank you ${username} for using our services` });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async createSnapTransaction(req, res, next) {
+    try {
+      const { email, username, totalPrice } = req.body;
+
+      let snap = new midtransClient.Snap({
+        // Set to true if you want Production Environment (accept real transaction).
+        isProduction: false,
+        serverKey: process.env.MIDTRANS_API_KEY,
+      });
+
+      const order_id = Math.random() * 1000000000000000 * 10;
+
+      let parameter = {
+        transaction_details: {
+          order_id,
+          gross_amount: totalPrice,
+        },
+        credit_card: {
+          secure: true,
+        },
+        customer_details: {
+          email,
+          username,
+        },
+      };
+
+      const midtransToken = await snap.createTransaction(parameter);
+      res.status(201).json(midtransToken);
     } catch (error) {
       next(error);
     }
