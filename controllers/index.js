@@ -1,5 +1,5 @@
 const { generateAccessToken } = require("../helpers/jwt");
-const { User, Rental, Bicycle } = require("../models");
+const { User, Rental, Bicycle, Category } = require("../models");
 
 class Controller {
   static async register(req, res, next) {
@@ -37,6 +37,15 @@ class Controller {
         email: data.email,
         username: data.username,
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async readCategories(req, res, next) {
+    try {
+      const categories = await Category.findAll();
+      res.status(200).json(categories);
     } catch (error) {
       next(error);
     }
