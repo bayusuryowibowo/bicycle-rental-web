@@ -28,6 +28,9 @@ export default {
         return `${minutes} minutes ${seconds} seconds`
       }
       return ''
+    },
+    totalPrice() {
+      return this.travelledDistance * this.bicycle.Category.price
     }
   },
   watch: {
@@ -36,7 +39,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(useRentalStore, ['startRental']),
+    ...mapActions(useRentalStore, ['startRental', 'snapTransaction']),
     addMarkersToMap() {
       const markerData = [
         {
@@ -346,6 +349,8 @@ export default {
       // this.addManueversToMap(route)
       // this.addManueversToPanel(route)
       this.addSummaryToPanel(route)
+
+      this.startRental(this.travelledDistance, this.bicycle.id)
     },
 
     onError(error) {
@@ -357,6 +362,9 @@ export default {
     start() {
       // Now use the map as required...
       this.calculateRouteFromAtoB()
+    },
+    finish() {
+      this.snapTransaction(this.travelledDistance, this.bicycle.Category.price)
     }
   },
   mounted() {
@@ -374,9 +382,10 @@ export default {
     <div id="mapContainer" class="map-container"></div>
     <div>
       <div class="text-lg font-bold mb-2">Summary</div>
-      <div id="panel" class="text-base">
+      <div v-if="isStart" id="panel" class="text-base">
         <b>Total distance</b>: {{ travelledDistance }} m <br />
-        <b>Travel Time</b>: {{ getDurationInMMSS() }}
+        <b>Travel Time</b>: {{ getDurationInMMSS() }} <br />
+        <b>Estimate Price:</b> {{ totalPrice() }}
       </div>
     </div>
   </div>
@@ -392,6 +401,12 @@ export default {
       class="text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-BrightMint focus:outline-none focus:ring-4 focus:ring-white hover:bg-teal-500 cursor-pointer"
     >
       Start
+    </button>
+    <button
+      @click="finish"
+      class="text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-BrightMint focus:outline-none focus:ring-4 focus:ring-white hover:bg-teal-500 cursor-pointer"
+    >
+      Finish
     </button>
   </div>
 </template>
