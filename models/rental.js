@@ -57,15 +57,14 @@ module.exports = (sequelize, DataTypes) => {
       const bicycle = await sequelize.models.Bicycle.findByPk(
         instance.BicycleId,
         {
-          include: sequelize.models.Category,
-          attributes: ["price"],
+          include: sequelize.models.Category
         }
       );
       instance.totalPrice = Math.ceil(
         bicycle.Category.price * instance.travelledDistance
       );
     } catch (error) {
-      next(error);
+      throw error;
     }
   });
 
