@@ -4,7 +4,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        BrightMint: '#4FFFB0'
+        BrightMint: '#4FFFB0',
+        MidnightBlue: '#08113B'
       }
     },
   },

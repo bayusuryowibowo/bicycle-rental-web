@@ -35,6 +35,7 @@ export default {
           <h5 class="text-xl text-black font-semibold text-center">
             {{ category.name }}
           </h5>
+          <p class="text-base text-black whitespace-normal">Estimate price: Rp <span class=" text-base text-black font-semibold">{{ category.price * 1000 }}</span> per kilometer</p>
           <p>
             {{ category.description }}
           </p>
@@ -58,11 +59,17 @@ export default {
               >
                 {{ bicycle.name }}
               </h6>
+              <h6
+                v-if="bicycle.Category.name === category.name"
+                class="text-base text-black"
+              >
+                {{ bicycle.feature }}
+              </h6>
               <button
                 v-if="bicycle.Category.name === category.name"
                 @click="selectBicycle(bicycle.id)"
                 type="submit"
-                class="text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-teal-500 focus:outline-none focus:ring-4 focus:ring-white hover:bg-teal-600 cursor-pointer"
+                class="text-white m-2 font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-teal-500 focus:outline-none focus:ring-4 focus:ring-white hover:bg-teal-600 cursor-pointer"
               >
                 Select
               </button>

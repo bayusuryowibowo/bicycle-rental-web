@@ -35,7 +35,7 @@ export default {
 
 <template>
   <header
-    class="flex justify-center fixed w-full z-20 top-0 left-0 bg-white dark:bg-black shadow-md border-b border-gray-400"
+    class="flex justify-center fixed w-full z-20 top-0 left-0 bg-MidnightBlue shadow-md border-b border-gray-400"
   >
     <div class="flex justify-center w-3/4">
       <nav>
