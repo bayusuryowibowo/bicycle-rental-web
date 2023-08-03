@@ -3,7 +3,7 @@ import axios from 'axios'
 import { useToast } from 'vue-toast-notification'
 
 const $toast = useToast()
-const baseUrl = 'http://localhost:3000'
+const baseUrl = 'https://ubike.bayusuryowibowo.xyz'
 
 export const useUserStore = defineStore('users', {
   state: () => {
