@@ -38,17 +38,21 @@ export const useRentalStore = defineStore('rental', {
         })
       }
     },
-    async finishRental(totalPrice) {
+    async finishRental(totalPrice, travelledDistance) {
       try {
         const id = this.rental.id
-        const { data } = await axios.patch(baseUrl + `/rentals/${id}`, {
-          travelledDistance,
-          totalPrice
-        }, {
-          headers: {
-            access_token: localStorage.access_token
+        const { data } = await axios.patch(
+          baseUrl + `/rentals/${id}`,
+          {
+            travelledDistance,
+            totalPrice
+          },
+          {
+            headers: {
+              access_token: localStorage.access_token
+            }
           }
-        })
+        )
         this.router.push('/')
         // <<<< tampilkan message ke client
         $toast.success(`${data.message}`, {
@@ -63,21 +67,25 @@ export const useRentalStore = defineStore('rental', {
     async snapTransaction(travelledDistance, price) {
       try {
         const totalPrice = Math.ceil(price * travelledDistance)
-        const { data } = await axios.post(baseUrl + '/generate-midtrans-token', {
-          email: localStorage.email,
-          username: localStorage.username,
-          totalPrice
-        }, {
-          headers: {
-            access_token: localStorage.access_token
+        const { data } = await axios.post(
+          baseUrl + '/generate-midtrans-token',
+          {
+            email: localStorage.email,
+            username: localStorage.username,
+            totalPrice
+          },
+          {
+            headers: {
+              access_token: localStorage.access_token
+            }
           }
-        })
+        )
         const callback = this.finishRental
         window.snap.pay(data.token, {
           onSuccess: function (result) {
             /* You may add your own implementation here */
             // alert("payment success!"); console.log(result);
-            callback(totalPrice)
+            callback(totalPrice, travelledDistance)
           },
           onPending: function (result) {
             /* You may add your own implementation here */
@@ -93,10 +101,9 @@ export const useRentalStore = defineStore('rental', {
           }
         })
       } catch (error) {
-        // $toast.error(`${error.response.data.message}`, {
-        //   position: 'top-right'
-        // })
-        console.log(error)
+        $toast.error(`${error.response.data.message}`, {
+          position: 'top-right'
+        })
       }
     }
   }
